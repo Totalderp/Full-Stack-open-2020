@@ -2,35 +2,54 @@ import React, { useState } from 'react'
 
 const App = () => {
   const [ persons, setPersons] = useState([
-    { name: 'Arto Hellas', id: 'Arto Hellas' }
+    { name: 'Arto Hellas', id: 'Arto Hellas', number: '040-1231244' }
   ]) 
   const [ newName, setNewName ] = useState('')
 
+  const [ newNumber, setNewNumber ] = useState('')
+
   //Handler tekstikentän päivittämistä varten
-  const handleNoteChange = (event) => {
+  const nimiMuuttuu = (event) => {
     console.log('tekstikenttä muuttuu:', event.target.value)
     setNewName(event.target.value)
+    
+  }
+
+  //Handler numerokentän päivittämistä varten
+  const numeroMuuttuu = (event) => {
+    console.log('numerokenttä muuttuu:', event.target.value)
+    setNewNumber(event.target.value)
     
   }
 
   //Handler panikkeen toiminalle ja uuden nimen lisäämiselle
   const addNote = (event) => {
     event.preventDefault()
-    console.log('Saatu sisältö', event.value)
-    console.log('Mitäs täällä tapahtuu', persons.includes(event.value))
-    if(!persons.includes(event.value)) {
+    console.log('Saatu sisältö', newName)
+
+    //tämän simppelin rivin naputteluun meni liian kauan
+    //Ottaa kaikki moniulotteisen listan name-tiedot ja tiivistää ne yhteen listaan
+    const nimet = persons.map(yksittainen => yksittainen.name)
+    
+    console.log('Nimien listassa nyt:', nimet)
+
+    //jos nimi ei ole vielä listassa
+    if(!nimet.includes(newName)) {
       const lisattavaperson = {
         name: newName,
-        id: newName
+        id: newName,
+        number: newNumber
       }
       console.log('Pusketaan listaan seuraavat tiedot: ', lisattavaperson)
-    
       setPersons(persons.concat(lisattavaperson))
+      
+      //tyhjennetään kentät
       setNewName('')
+      setNewNumber('')
       console.log('Listassa nyt: ', persons)
     }
     else {
-      alert("Läski idiootti")
+      alert(`${newName} is already added to phonebook`)
     }
       
   }
@@ -43,7 +62,13 @@ const App = () => {
         <div>
           name: <input 
             value={newName}
-            onChange={handleNoteChange}
+            onChange={nimiMuuttuu}
+          />
+        </div>
+        <div>
+          number: <input
+            value={newNumber}
+            onChange={numeroMuuttuu}
           />
         </div>
         <div>
@@ -51,14 +76,11 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      <ul>
-          {persons.map(person => {
-           return <li key = {person.id}>  {person.name} </li>
-        })}
-      </ul>
+      {persons.map(person => {
+        return <p key = {person.id}>  {person.name} {person.number} </p>
+      })}
     </div>
   )
-
 }
 
 
