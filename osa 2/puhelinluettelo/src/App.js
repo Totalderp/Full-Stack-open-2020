@@ -1,13 +1,27 @@
 import React, { useState } from 'react'
 
 const App = () => {
-  const [ persons, setPersons] = useState([
-    { name: 'Arto Hellas', id: 'Arto Hellas', number: '040-1231244' }
-  ]) 
+  const [persons, setPersons] = useState([
+    { name: 'Arto Hellas', number: '040-123456' },
+    { name: 'Ada Lovelace', number: '39-44-5323523' },
+    { name: 'Dan Abramov', number: '12-43-234345' },
+    { name: 'Mary Poppendieck', number: '39-23-6423122' }
+  ])
+
+
   const [ newName, setNewName ] = useState('')
 
   const [ newNumber, setNewNumber ] = useState('')
 
+  const [ newFilter, setNewFilter ] = useState('')
+
+  //Handler filtterin muutosten seuraamiseen
+  const filterMuuttuu = (event) => {
+    console.log('filtterikenttä muuttuu:', event.target.value)
+    setNewFilter(event.target.value)
+  }
+  
+  
   //Handler tekstikentän päivittämistä varten
   const nimiMuuttuu = (event) => {
     console.log('tekstikenttä muuttuu:', event.target.value)
@@ -20,6 +34,21 @@ const App = () => {
     console.log('numerokenttä muuttuu:', event.target.value)
     setNewNumber(event.target.value)
     
+  }
+  //const lista = course.parts.map((list) => list.exercises)
+  //luokka jossa käsitellään listaa filtterin mukaisesti
+  const notesToShow = () => {
+    console.log('Täälä!')
+    if (newFilter === "") {
+      console.log('Filter tyhjä!')
+      console.log(persons.map(person => person))
+      const plautanormi = persons.map(person => person)
+      return plautanormi
+    } else {
+      console.log('Filtteröidään!')
+      const palauta = persons.filter(note => note.name.includes(newFilter))
+      return palauta
+    }
   }
 
   //Handler panikkeen toiminalle ja uuden nimen lisäämiselle
@@ -37,7 +66,6 @@ const App = () => {
     if(!nimet.includes(newName)) {
       const lisattavaperson = {
         name: newName,
-        id: newName,
         number: newNumber
       }
       console.log('Pusketaan listaan seuraavat tiedot: ', lisattavaperson)
@@ -46,7 +74,7 @@ const App = () => {
       //tyhjennetään kentät
       setNewName('')
       setNewNumber('')
-      console.log('Listassa nyt: ', persons)
+      //console.log('Listassa nyt: ', persons)
     }
     else {
       alert(`${newName} is already added to phonebook`)
@@ -58,6 +86,13 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <div>
+          filter shown with: <input
+            value={newFilter}
+            onChange={filterMuuttuu}
+          />
+        </div>
+      <h2>Add a new</h2>
       <form onSubmit={addNote}>
         <div>
           name: <input 
@@ -76,9 +111,7 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      {persons.map(person => {
-        return <p key = {person.id}>  {person.name} {person.number} </p>
-      })}
+      {persons.map((person) => <p key = {person.name}>  {person.name} {person.number} </p>)}
     </div>
   )
 }
