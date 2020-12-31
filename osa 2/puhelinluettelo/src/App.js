@@ -8,7 +8,6 @@ const App = () => {
     { name: 'Mary Poppendieck', number: '39-23-6423122' }
   ])
 
-
   const [ newName, setNewName ] = useState('')
 
   const [ newNumber, setNewNumber ] = useState('')
@@ -35,21 +34,19 @@ const App = () => {
     setNewNumber(event.target.value)
     
   }
-  //const lista = course.parts.map((list) => list.exercises)
-  //luokka jossa käsitellään listaa filtterin mukaisesti
-  const notesToShow = () => {
-    console.log('Täälä!')
-    if (newFilter === "") {
-      console.log('Filter tyhjä!')
-      console.log(persons.map(person => person))
-      const plautanormi = persons.map(person => person)
-      return plautanormi
-    } else {
-      console.log('Filtteröidään!')
-      const palauta = persons.filter(note => note.name.includes(newFilter))
-      return palauta
-    }
-  }
+
+  //Ihmislistan filtteröiminen annetulla filtterillä caseINsensitiivisesti
+    const filteredPersons = persons.filter(person => {
+      return person.name.toLocaleLowerCase().includes(newFilter.toLowerCase())
+  })
+
+  //Filtteröidyn listan tulostaminen omana komponenttinaan
+  const personsListed = filteredPersons.map(person => {
+    console.log('Tulostetaan filtteröidyt ihmiset:', filteredPersons)
+    return (
+      <p key={person.name}>{person.name} {person.number} </p>
+    )
+  })
 
   //Handler panikkeen toiminalle ja uuden nimen lisäämiselle
   const addNote = (event) => {
@@ -111,7 +108,7 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      {persons.map((person) => <p key = {person.name}>  {person.name} {person.number} </p>)}
+      {personsListed}
     </div>
   )
 }
