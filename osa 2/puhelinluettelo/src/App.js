@@ -8,66 +8,57 @@ const App = () => {
     { name: 'Mary Poppendieck', number: '39-23-6423122' }
   ])
 
-  const [ newName, setNewName ] = useState('')
+  const [newName, setNewName] = useState('')
 
-  const [ newNumber, setNewNumber ] = useState('')
+  const [newNumber, setNewNumber] = useState('')
 
-  const [ newFilter, setNewFilter ] = useState('')
+  const [newFilter, setNewFilter] = useState('')
 
-  //Handler filtterin muutosten seuraamiseen
+  //Handler filtterin päivittämistä varten
   const filterMuuttuu = (event) => {
     console.log('filtterikenttä muuttuu:', event.target.value)
     setNewFilter(event.target.value)
   }
-  
-  
+
   //Handler tekstikentän päivittämistä varten
   const nimiMuuttuu = (event) => {
     console.log('tekstikenttä muuttuu:', event.target.value)
     setNewName(event.target.value)
-    
+
   }
 
   //Handler numerokentän päivittämistä varten
   const numeroMuuttuu = (event) => {
     console.log('numerokenttä muuttuu:', event.target.value)
     setNewNumber(event.target.value)
-    
+
   }
 
   //Ihmislistan filtteröiminen annetulla filtterillä caseINsensitiivisesti
-    const filteredPersons = persons.filter(person => {
-      return person.name.toLocaleLowerCase().includes(newFilter.toLowerCase())
+  const filteredPersons = persons.filter(person => {
+    return person.name.toLocaleLowerCase().includes(newFilter.toLowerCase())
   })
 
-  //Filtteröidyn listan tulostaminen omana komponenttinaan
-  const personsListed = filteredPersons.map(person => {
-    console.log('Tulostetaan filtteröidyt ihmiset:', filteredPersons)
-    return (
-      <p key={person.name}>{person.name} {person.number} </p>
-    )
-  })
-
-  //Handler panikkeen toiminalle ja uuden nimen lisäämiselle
+  //Handler napin toiminnalle ja nimen lisäämiselle
   const addNote = (event) => {
     event.preventDefault()
     console.log('Saatu sisältö', newName)
 
     //tämän simppelin rivin naputteluun meni liian kauan
-    //Ottaa kaikki moniulotteisen listan name-tiedot ja tiivistää ne yhteen listaan
+    //Ottaa kaikki moniulotteisen listan name-tiedot ja tiivistää ne yhteen yksiulotteiseen listaan
     const nimet = persons.map(yksittainen => yksittainen.name)
-    
+
     console.log('Nimien listassa nyt:', nimet)
 
     //jos nimi ei ole vielä listassa
-    if(!nimet.includes(newName)) {
+    if (!nimet.includes(newName)) {
       const lisattavaperson = {
         name: newName,
         number: newNumber
       }
       console.log('Pusketaan listaan seuraavat tiedot: ', lisattavaperson)
       setPersons(persons.concat(lisattavaperson))
-      
+
       //tyhjennetään kentät
       setNewName('')
       setNewNumber('')
@@ -76,42 +67,68 @@ const App = () => {
     else {
       alert(`${newName} is already added to phonebook`)
     }
-      
+
   }
 
-
+  //varsinaisen rungon tulostus
   return (
     <div>
       <h2>Phonebook</h2>
-      <div>
-          filter shown with: <input
-            value={newFilter}
-            onChange={filterMuuttuu}
-          />
-        </div>
+      <Filter newFilter={newFilter} filterMuuttuu={filterMuuttuu} />
       <h2>Add a new</h2>
-      <form onSubmit={addNote}>
-        <div>
-          name: <input 
-            value={newName}
-            onChange={nimiMuuttuu}
-          />
-        </div>
-        <div>
-          number: <input
-            value={newNumber}
-            onChange={numeroMuuttuu}
-          />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <PersonForm addNote={addNote} newName={newName} nimiMuuttuu={nimiMuuttuu} newNumber={newNumber} numeroMuuttuu={numeroMuuttuu} />
       <h2>Numbers</h2>
-      {personsListed}
+      <PersonsListForm filteredPersons={filteredPersons} />
     </div>
   )
 }
 
+//Person komponentti. Tulostaa yhden ainoa ihmisen tiedot
+const Person = (props) => {
+  //console.log('Tulostetaan yksittäinen henkilö')
+  return (<p key={props.name}>{props.name} {props.number} </p>)
+}
+
+//Person-komponentin kattokomponentti. Valmistaa kaikki listan henkilöt tulostamista varten
+const PersonsListForm = (props) => {
+  console.log('Tulostetaan Ihmisten hallintaan käytetty lista', props)
+  return (
+    <div>
+      {props.filteredPersons.map(person =>
+        <Person key={person.name} name={person.name} number={person.number} />
+      )}</div>
+  )
+}
+
+//Filter vastaa filter-kentän ja tekstin tulostamisesta
+const Filter = (props) => (
+  <div>
+    filter shown with: <input
+      value={props.newFilter}
+      onChange={props.filterMuuttuu}
+    />
+  </div>
+)
+
+//PersonForm vastaa numero ja nimikentän + add-napin tulostamisesta
+const PersonForm = (props) => (
+  <form onSubmit={props.addNote}>
+    <div>
+      name: <input
+        value={props.newName}
+        onChange={props.nimiMuuttuu}
+      />
+    </div>
+    <div>
+      number: <input
+        value={props.newNumber}
+        onChange={props.numeroMuuttuu}
+      />
+    </div>
+    <div>
+      <button type="submit">add</button>
+    </div>
+  </form>
+)
 
 export default App
