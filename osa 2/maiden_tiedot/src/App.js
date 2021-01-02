@@ -5,7 +5,7 @@ const App = () => {
   const [newFilter, setNewFilter] = useState('')
   const [countries, setCountries] = useState([])
 
-  //lataa maat tietokannasta
+  //Käytetään effect hookkia maiden JSON tiedoston lataamiseen
   useEffect(() => {
     console.log('effect alkaa')
     axios
@@ -28,6 +28,7 @@ const App = () => {
     return country.name.toLocaleLowerCase().includes(newFilter.toLowerCase())
   })
 
+  //itse sisällön tulostmainen
   return (
     <div>
       <Filter newFilter={newFilter} filterMuuttuu={filterMuuttuu} />
@@ -52,6 +53,7 @@ const CountriesListed = (props) => {
   console.log('Tulostetaan maiden hallintaan käytetty lista', props)
   console.log('Listan pituus ', props.filteredCountries.length)
 
+  //yksittäisen valtion kaikkien tietojen tulostaminen
   if(props.filteredCountries.length === 1){
     console.log('Tulostetaan yksittäisen maan tiedot')
     return(
@@ -68,14 +70,17 @@ const CountriesListed = (props) => {
         <img src={props.filteredCountries[0].flag} alt="flag" width="200" height="128"></img>
       </div>
     )
+
+  //listan ensimmäisen 10 hakutuloksen tulostaminen
   }else if(props.filteredCountries.length <= 10) {
-    console.log('Tulostetaan rypäs maita ja props', props)
+    console.log('Tulostetaan rypäs maita')
     return (
       <div>
         {props.filteredCountries.map(land =>
-          <Country name={land.name} setNewFilter={props.setNewFilter}/>
+          <Country key={land.name} name={land.name} setNewFilter={props.setNewFilter}/>
         )}</div>
     )
+  //virheilmoituksen tulostaminen
   }else {
     console.log('Yli 10 maata fillterin perusteella')
     return (
@@ -93,8 +98,6 @@ const Language = (props) => {
 
 //Country komponentti. Tulostaa yhden ainoa maan tiedot
 const Country = (props) => {
-  
-
   console.log('Tulostetaan yksittäinen maa ja props:', props)
   return (<p key={props.name}>{props.name} <button onClick={() => props.setNewFilter(props.name)}>show</button></p>)
 }
