@@ -1,18 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456' },
-    { name: 'Ada Lovelace', number: '39-44-5323523' },
-    { name: 'Dan Abramov', number: '12-43-234345' },
-    { name: 'Mary Poppendieck', number: '39-23-6423122' }
-  ])
+  const [persons, setPersons] = useState([])
 
   const [newName, setNewName] = useState('')
 
   const [newNumber, setNewNumber] = useState('')
 
   const [newFilter, setNewFilter] = useState('')
+
+  //useEffect hakee sovelluksen tiedot JSON muodossa palvelimelta käyttäen axiosia
+  useEffect(() => {
+    console.log('effect alkaa')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('effect -> promise fulfilled')
+        setPersons(response.data)
+      })
+  }, [])
+  console.log('Dataa löydetty:', persons.length, 'kpl')
 
   //Handler filtterin päivittämistä varten
   const filterMuuttuu = (event) => {
