@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import numbersService from './services/numbersService'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -10,13 +11,13 @@ const App = () => {
 
   const [newFilter, setNewFilter] = useState('')
 
-  //useEffect hakee sovelluksen tiedot JSON muodossa palvelimelta käyttäen axiosia
+  //useEffect hakee sovelluksen tiedot JSON muodossa palvelimelta käyttäen numberService luokan axiosia
   useEffect(() => {
     console.log('effect alkaa')
-    axios
-      .get('http://localhost:3001/persons')
+    numbersService
+      .getAll()
       .then(response => {
-        console.log('effect -> promise fulfilled')
+        console.log('effect -> promise fulfilled', response)
         setPersons(response.data)
       })
   }, [])
@@ -58,22 +59,48 @@ const App = () => {
 
     console.log('Nimien listassa nyt:', nimet)
 
+    //uunen henkilön tietojen atribuutit
+    const lisattavaperson = {
+      name: newName,
+      number: newNumber
+    }
+
     //jos nimi ei ole vielä listassa
     if (!nimet.includes(newName)) {
-      const lisattavaperson = {
-        name: newName,
-        number: newNumber
-      }
-      console.log('Pusketaan listaan seuraavat tiedot: ', lisattavaperson)
-      setPersons(persons.concat(lisattavaperson))
+      console.log('Pusketaan listaan seuraavat tiedot severille: ', lisattavaperson)
 
-      //tyhjennetään kentät
-      setNewName('')
-      setNewNumber('')
-      //console.log('Listassa nyt: ', persons)
+      //2.15, lähetetään uusi persons-tieto palvelimelle
+      numbersService
+        .create(lisattavaperson)
+        .then(response => {
+          setPersons(persons.concat(response.data))
+          console.log('Palvelin vastasi uuteen tietoon:', response)
+          //tyhjennetään kentät
+          setNewName('')
+          setNewNumber('')
+        })
+      console.log('Listassa nyt: ', persons)
     }
+
+    //2.18 nimi on jo listassa, tarjotaan mahdollisuutta päivittää se
     else {
-      alert(`${newName} is already added to phonebook`)
+      //jos ikkunasta klikataan OK, lähetetään numberService komponentille Axionille PUT update käsky
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        
+        //tämän rivin kirjoittamiseen meni liian kauan
+        const lisattavanID = persons.filter(haeid => haeid.name == lisattavaperson.name)
+        
+        //päivitetään vanha tieto
+        numbersService
+          .update(lisattavanID[0].id, lisattavaperson)
+          .then(response => {
+            console.log('Palvelin vastasi uuteen tietoon:', response)
+            setPersons(persons.concat(response.data))
+            //tyhjennetään kentät
+            setNewName('')
+            setNewNumber('')
+          })
+      }
     }
 
   }
@@ -91,10 +118,24 @@ const App = () => {
   )
 }
 
-//Person komponentti. Tulostaa yhden ainoa ihmisen tiedot
+//Person komponentti. Tulostaa yhden ainoa ihmisen tiedot, sekä poistamiseen käytetty painike
 const Person = (props) => {
-  //console.log('Tulostetaan yksittäinen henkilö')
-  return (<p key={props.name}>{props.name} {props.number} </p>)
+  return (<p key={props.id}>{props.name} {props.number}
+    <button onClick={() => {
+      const messege = 'Delete ' +props.name
+      console.log(messege)
+      if (window.confirm(messege)) {
+        //jos ikkunasta klikataan OK, lähetetään numberService komponentille Axionille delete käsky
+        console.log('Klikattu poista henkilöön:', props.name, 'jonka ID on', props.id)
+        numbersService
+          .remove(props.id)
+          .then(response => {
+            console.log('Palvelin vastasi uuteen tietoon:', response)
+          })
+      }
+    }
+
+    }>delete</button></p>)
 }
 
 //Person-komponentin kattokomponentti. Valmistaa kaikki listan henkilöt tulostamista varten
@@ -103,7 +144,7 @@ const PersonsListForm = (props) => {
   return (
     <div>
       {props.filteredPersons.map(person =>
-        <Person key={person.name} name={person.name} number={person.number} />
+        <Person key={person.id} name={person.name} number={person.number} id={person.id}/>
       )}</div>
   )
 }
