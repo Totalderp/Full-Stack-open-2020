@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import numbersService from './services/numbersService'
+import './index.css'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -10,6 +10,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
 
   const [newFilter, setNewFilter] = useState('')
+
+  const [errorMessage, setErrorMessage] = useState(null)
 
   //useEffect hakee sovelluksen tiedot JSON muodossa palvelimelta käyttäen numberService luokan axiosia
   useEffect(() => {
@@ -78,6 +80,14 @@ const App = () => {
           //tyhjennetään kentät
           setNewName('')
           setNewNumber('')
+
+          //tulostetaan ilmoitus onnistuneesta lisäyksestä
+          setErrorMessage(
+            `Added ${lisattavaperson.name}`
+          )
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
         })
       console.log('Listassa nyt: ', persons)
     }
@@ -88,7 +98,7 @@ const App = () => {
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
         
         //tämän rivin kirjoittamiseen meni liian kauan
-        const lisattavanID = persons.filter(haeid => haeid.name == lisattavaperson.name)
+        const lisattavanID = persons.filter(haeid => haeid.name === lisattavaperson.name)
         
         //päivitetään vanha tieto
         numbersService
@@ -99,6 +109,14 @@ const App = () => {
             //tyhjennetään kentät
             setNewName('')
             setNewNumber('')
+
+            //tulostetaan ilmoitus onnistuneesta tiedon muuttamisesta
+            setErrorMessage(
+              `Updated number for ${lisattavaperson.name}`
+            )
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
           })
       }
     }
@@ -109,11 +127,12 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={errorMessage}/>
       <Filter newFilter={newFilter} filterMuuttuu={filterMuuttuu} />
       <h2>Add a new</h2>
       <PersonForm addNote={addNote} newName={newName} nimiMuuttuu={nimiMuuttuu} newNumber={newNumber} numeroMuuttuu={numeroMuuttuu} />
       <h2>Numbers</h2>
-      <PersonsListForm filteredPersons={filteredPersons} />
+      <PersonsListForm filteredPersons={filteredPersons} setErrorMessage={setErrorMessage}/>
     </div>
   )
 }
@@ -131,7 +150,24 @@ const Person = (props) => {
           .remove(props.id)
           .then(response => {
             console.log('Palvelin vastasi uuteen tietoon:', response)
+
+            //tulostetaan ilmoitus tiedon onnistuneesta poistamisesta
+            props.setErrorMessage(
+              `Deleted ${props.name}`
+            )
+            setTimeout(() => {
+              props.setErrorMessage(null)
+            }, 5000)
           })
+          //
+          .catch(error => {
+            console.log('Virhe poistaessa, tulostetaan virheilmoitus')
+            props.setErrorMessage (
+              `Name and number were already removed from server`
+            )
+            setTimeout(() => {
+              props.setErrorMessage(null)
+            }, 5000)})
       }
     }
 
@@ -144,7 +180,7 @@ const PersonsListForm = (props) => {
   return (
     <div>
       {props.filteredPersons.map(person =>
-        <Person key={person.id} name={person.name} number={person.number} id={person.id}/>
+        <Person key={person.id} name={person.name} number={person.number} id={person.id} setErrorMessage={props.setErrorMessage}/>
       )}</div>
   )
 }
@@ -179,5 +215,28 @@ const PersonForm = (props) => (
     </div>
   </form>
 )
+
+//Ilmoitusten tulostamiseen käytetty komponentti. Saa parametrinä tulostettavan viestin
+const Notification = ({ message }) => {
+  //Mikäli viestikentän tulee olla tyhjänä
+  if (message === null) {
+    return null
+  }
+  //Virhetilannetta varten varattu viesti
+  else if (message === `Name and number were already removed from server`) {
+    return (
+      <div className="fail">
+        {message}
+      </div>
+    )
+  }
+
+  //tavallisen ilnmoituksen (poisto, lisäys ja päivitys) tulostaminen
+  return (
+    <div className="success">
+      {message}
+    </div>
+  )
+}
 
 export default App
