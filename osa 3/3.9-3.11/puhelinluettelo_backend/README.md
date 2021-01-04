@@ -1,3 +1,8 @@
+## Visible at:
+[https://arcane-tundra-08711.herokuapp.com/]
+for example using:
+[https://arcane-tundra-08711.herokuapp.com/api/persons/2]
+
 ## How to run:
 
 Navigate to the project directory using command prompt and then type the following

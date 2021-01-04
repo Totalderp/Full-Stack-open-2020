@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const morgan = require('morgan')
 app.use(express.json())
+//asetetaan front end mukaan käyttäen expressiä.
+app.use(express.static('build'))
 
 //morgan on middleware, joka loggaa backendin tapahtumia konsoliin. tiny pienin ja yksinkertaisin
 //app.use(morgan('tiny'))

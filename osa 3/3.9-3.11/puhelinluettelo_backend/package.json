@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push && npm run deploy",    
+    "logs:prod": "heroku logs --tail",
+    "deploy": "git push heroku master",
+    "build:ui": "rm -rf build && cd ../../osa 3/3.9-3.11/puhelinluettelo && npm run build --prod && cp -r build ../..osa 3/3.9-3.11/puhelinluettelo_backend"
   },
   "author": "Totalderp",
   "license": "ISC",
