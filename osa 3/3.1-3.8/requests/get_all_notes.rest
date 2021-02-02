@@ -1,7 +1,10 @@
-POST http://localhost:3001/api/persons
+POST https://arcane-tundra-08711.herokuapp.com/api/persons/
 Content-Type: application/json
 
 {
     "name": "Kissa Koira",
     "number": "050-456-896"
 }
+
+
+Get https://arcane-tundra-08711.herokuapp.com/api/persons
