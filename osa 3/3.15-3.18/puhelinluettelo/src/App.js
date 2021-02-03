@@ -23,7 +23,7 @@ const App = () => {
         setPersons(response.data)
       })
   }, [])
-  console.log('Dataa löydetty:', persons.length, 'kpl')
+  console.log('Dataa löydetty 1:', persons.length, 'kpl')
 
   //Handler filtterin päivittämistä varten
   const filterMuuttuu = (event) => {
@@ -96,19 +96,28 @@ const App = () => {
     else {
       //jos ikkunasta klikataan OK, lähetetään numberService komponentille Axionille PUT update käsky
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
-        
+
         //tämän rivin kirjoittamiseen meni liian kauan
         const lisattavanID = persons.filter(haeid => haeid.name === lisattavaperson.name)
-        
+
         //päivitetään vanha tieto
         numbersService
           .update(lisattavanID[0].id, lisattavaperson)
           .then(response => {
             console.log('Palvelin vastasi uuteen tietoon:', response)
-            setPersons(persons.concat(response.data))
+
             //tyhjennetään kentät
             setNewName('')
             setNewNumber('')
+
+            //päivitetään lista muutoksen jälkeen
+            numbersService
+              .getAll()
+              .then(response => {
+                console.log('effect -> promise fulfilled', response)
+                setPersons(response.data)
+              })
+            console.log('Dataa löydetty 3:', persons.length, 'kpl')
 
             //tulostetaan ilmoitus onnistuneesta tiedon muuttamisesta
             setErrorMessage(
@@ -127,12 +136,12 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={errorMessage}/>
+      <Notification message={errorMessage} />
       <Filter newFilter={newFilter} filterMuuttuu={filterMuuttuu} />
       <h2>Add a new</h2>
       <PersonForm addNote={addNote} newName={newName} nimiMuuttuu={nimiMuuttuu} newNumber={newNumber} numeroMuuttuu={numeroMuuttuu} />
       <h2>Numbers</h2>
-      <PersonsListForm filteredPersons={filteredPersons} setErrorMessage={setErrorMessage} setPersons={setPersons}/>
+      <PersonsListForm filteredPersons={filteredPersons} setErrorMessage={setErrorMessage} setPersons={setPersons} />
     </div>
   )
 }
@@ -141,7 +150,7 @@ const App = () => {
 const Person = (props) => {
   return (<p key={props.id}>{props.name} {props.number}
     <button onClick={() => {
-      const messege = 'Delete ' +props.name
+      const messege = 'Delete ' + props.name
       console.log(messege)
       if (window.confirm(messege)) {
         //jos ikkunasta klikataan OK, lähetetään numberService komponentille Axionille delete käsky
@@ -166,19 +175,20 @@ const Person = (props) => {
               .then(response => {
                 console.log('päivitetään', response)
                 props.setPersons(response.data)
-                })
-            
-            console.log('Dataa löydetty:', response.length, 'kpl')
+              })
+
+            console.log('Dataa löydetty 2:', response.length, 'kpl')
           })
           //
           .catch(error => {
             console.log('Virhe poistaessa, tulostetaan virheilmoitus')
-            props.setErrorMessage (
+            props.setErrorMessage(
               `Name and number were already removed from server`
             )
             setTimeout(() => {
               props.setErrorMessage(null)
-            }, 5000)})
+            }, 5000)
+          })
       }
     }
 
@@ -191,7 +201,7 @@ const PersonsListForm = (props) => {
   return (
     <div>
       {props.filteredPersons.map(person =>
-        <Person key={person.id} name={person.name} number={person.number} id={person.id} setErrorMessage={props.setErrorMessage} setPersons={props.setPersons}/>
+        <Person key={person.id} name={person.name} number={person.number} id={person.id} setErrorMessage={props.setErrorMessage} setPersons={props.setPersons} />
       )}</div>
   )
 }
